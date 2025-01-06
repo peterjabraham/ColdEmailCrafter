@@ -50,14 +50,16 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
         }
 
         const data = await response.json();
-        const receivedMetrics = data.metrics || {
-          readability: 0,
-          personalizationScore: 0,
-          valuePropositionClarity: 0,
-          ctaEffectiveness: 0,
-          estimatedResponseRate: 0,
-          keyStrengths: [],
-          improvementSuggestions: []
+
+        // Ensure we have default values for all metrics
+        const receivedMetrics: Metrics = {
+          readability: data.metrics?.readability ?? 0,
+          personalizationScore: data.metrics?.personalizationScore ?? 0,
+          valuePropositionClarity: data.metrics?.valuePropositionClarity ?? 0,
+          ctaEffectiveness: data.metrics?.ctaEffectiveness ?? 0,
+          estimatedResponseRate: Math.min(data.metrics?.estimatedResponseRate ?? 0, 5),
+          keyStrengths: Array.isArray(data.metrics?.keyStrengths) ? data.metrics.keyStrengths : [],
+          improvementSuggestions: Array.isArray(data.metrics?.improvementSuggestions) ? data.metrics.improvementSuggestions : []
         };
 
         setMetrics(receivedMetrics);
@@ -148,7 +150,7 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
           <div className="mt-6 p-4 bg-primary/5 rounded-lg">
             <div className="text-center mb-4">
               <div className="text-2xl font-bold text-primary">
-                {metrics.estimatedResponseRate}%
+                {metrics.estimatedResponseRate.toFixed(1)}%
               </div>
               <div className="text-sm text-muted-foreground">
                 Estimated Response Rate
@@ -160,7 +162,7 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
             <div>
               <h4 className="font-semibold mb-2 text-sm">Key Strengths</h4>
               <ul className="list-disc list-inside text-sm space-y-1">
-                {(metrics.keyStrengths || []).map((strength, i) => (
+                {metrics.keyStrengths.map((strength, i) => (
                   <li key={i} className="text-green-600">{strength}</li>
                 ))}
               </ul>
@@ -168,7 +170,7 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
             <div>
               <h4 className="font-semibold mb-2 text-sm">Quick Improvements</h4>
               <ul className="list-disc list-inside text-sm space-y-1">
-                {(metrics.improvementSuggestions || []).map((suggestion, i) => (
+                {metrics.improvementSuggestions.map((suggestion, i) => (
                   <li key={i} className="text-blue-600">{suggestion}</li>
                 ))}
               </ul>

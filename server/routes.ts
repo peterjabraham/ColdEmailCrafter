@@ -29,10 +29,10 @@ export function registerRoutes(app: Express): Server {
         messages: [
           {
             role: "system",
-            content: `You are an expert cold email writer who creates highly effective, personalized sales emails. Format your response as JSON with improvements as a formatted string. Structure the response like this:
+            content: `You are an expert cold email writer who creates highly effective, personalized sales emails. Format your response as JSON with improvements as a formatted string with detailed examples. Structure the response like this:
 
 {
-  "improvements": "1. Pain Points:\\n   Original: [current]\\n   Enhanced: [better]\\n   Example: [specific example]\\n\\n2. Solution Positioning:\\n   Original: [current]\\n   Better: [improved]\\n   Example: [specific example]\\n\\n3. Industry-Specific Context:\\n   Current: [current]\\n   Tailored: [better]\\n   Example: [specific example]",
+  "improvements": "1. Pain Points:\\n   Original: [current]\\n   Enhanced: [better]\\n   Example: 'Many marketing teams, like yours at Agency One, lose over 10 hours weekly on manual content creation, risking brand inconsistency.'\\n\\n2. Solution Positioning:\\n   Original: [current]\\n   Better: [improved]\\n   Example: 'Our AI-powered calendar slashes content creation time by 80%, ensuring a unified brand voice and higher engagement.'\\n\\n3. Industry-Specific Context:\\n   Current: [current]\\n   Tailored: [better]\\n   Example: 'As a Marketing Manager, you understand the challenge of maintaining a consistent brand voice across platforms. Our solution could be a game-changer for your team.'",
   "variant1": "First email content here",
   "variant2": "Second email content here"
 }`
@@ -97,7 +97,7 @@ export function registerRoutes(app: Express): Server {
               "personalizationScore": number (1-10),
               "valuePropositionClarity": number (1-10),
               "ctaEffectiveness": number (1-10),
-              "estimatedResponseRate": number (percentage),
+              "estimatedResponseRate": number (percentage between 0.1 and 5.0 - remember cold emails typically have very low response rates),
               "keyStrengths": string[] (array of 3 strengths),
               "improvementSuggestions": string[] (array of 3 suggestions)
             }
@@ -107,7 +107,7 @@ export function registerRoutes(app: Express): Server {
             2. Personalization Score: How well is it tailored to the recipient?
             3. Value Proposition Clarity: How clearly is the value communicated?
             4. Call-to-Action Effectiveness: How compelling is the CTA?
-            5. Estimated Response Rate: Predicted response rate based on email quality (as a number)
+            5. Estimated Response Rate: Predicted response rate based on email quality (as a number between 0.1% and 5.0% - be conservative and realistic)
             6. Key Strengths: List exactly 3 key strengths as simple strings
             7. Improvement Suggestions: List exactly 3 quick improvements as simple strings`
           },
@@ -126,6 +126,17 @@ export function registerRoutes(app: Express): Server {
 
       try {
         const parsedContent = JSON.parse(cleanContent);
+        // Ensure response rate is capped at 5%
+        if (parsedContent.estimatedResponseRate > 5) {
+          parsedContent.estimatedResponseRate = 5;
+        }
+        // Ensure all arrays exist
+        if (!Array.isArray(parsedContent.keyStrengths)) {
+          parsedContent.keyStrengths = [];
+        }
+        if (!Array.isArray(parsedContent.improvementSuggestions)) {
+          parsedContent.improvementSuggestions = [];
+        }
         res.json({
           metrics: parsedContent
         });
