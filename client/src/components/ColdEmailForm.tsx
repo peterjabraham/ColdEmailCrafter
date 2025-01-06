@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -93,7 +93,7 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
 
       const data = await response.json();
       const content = data.choices[0].message.content;
-      
+
       // Check if there are suggested improvements
       let variant1, variant2, improvements = '';
       if (content.includes('SUGGESTED IMPROVEMENTS:')) {
@@ -103,7 +103,7 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
       } else {
         [variant1, variant2] = content.split('Version 2:');
       }
-      
+
       setEmails({
         improvements: improvements || undefined,
         variant1: variant1.replace('Version 1:', '').trim(),
@@ -118,7 +118,7 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
   };
 
   // Trigger email generation when component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     generateEmails();
   }, []);
 
@@ -129,7 +129,7 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      
+
       {loading ? (
         <div className="flex justify-center items-center p-8">
           <Loader2 className="h-8 w-8 animate-spin" />
@@ -149,7 +149,7 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
               </CardContent>
             </Card>
           )}
-          
+
           {emails.variant1 && (
             <Card>
               <CardHeader>
@@ -162,7 +162,7 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
               </CardContent>
             </Card>
           )}
-          
+
           {emails.variant2 && (
             <Card>
               <CardHeader>
@@ -332,7 +332,7 @@ const ColdEmailForm: React.FC = () => {
 
         <Button type="submit" className="w-full">Generate Emails</Button>
       </form>
-      
+
       {showEmails && <EmailDisplay formData={formData} />}
     </div>
   );
