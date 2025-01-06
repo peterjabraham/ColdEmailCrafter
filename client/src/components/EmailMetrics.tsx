@@ -77,12 +77,25 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
     }
   }, [emailContent]);
 
+  const MetricRow: React.FC<MetricRowProps> = ({ label, value, icon: Icon }) => (
+    <div className="flex items-center space-x-3 sm:space-x-4 mb-3 sm:mb-4">
+      <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-center mb-1">
+          <span className="text-xs sm:text-sm font-medium truncate">{label}</span>
+          <span className="text-xs sm:text-sm font-bold ml-2">{value}/10</span>
+        </div>
+        <Progress value={value * 10} className="h-1.5 sm:h-2" />
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <Card>
-        <CardContent className="flex items-center justify-center p-6">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span>Analyzing email performance...</span>
+        <CardContent className="flex items-center justify-center p-4 sm:p-6">
+          <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin mr-2" />
+          <span className="text-sm sm:text-base">Analyzing email performance...</span>
         </CardContent>
       </Card>
     );
@@ -100,19 +113,6 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
     return null;
   }
 
-  const MetricRow: React.FC<MetricRowProps> = ({ label, value, icon: Icon }) => (
-    <div className="flex items-center space-x-4 mb-4">
-      <Icon className="h-5 w-5 text-primary" />
-      <div className="flex-1">
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-sm font-medium">{label}</span>
-          <span className="text-sm font-bold">{value}/10</span>
-        </div>
-        <Progress value={value * 10} className="h-2" />
-      </div>
-    </div>
-  );
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -120,11 +120,11 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
       transition={{ duration: 0.5 }}
     >
       <Card>
-        <CardHeader>
-          <CardTitle>Performance Metrics</CardTitle>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl">Performance Metrics</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
+        <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+          <div className="space-y-3 sm:space-y-4">
             <MetricRow
               label="Readability"
               value={metrics.readability}
@@ -147,29 +147,29 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
             />
           </div>
 
-          <div className="mt-6 p-4 bg-primary/5 rounded-lg">
-            <div className="text-center mb-4">
-              <div className="text-2xl font-bold text-primary">
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-primary/5 rounded-lg">
+            <div className="text-center mb-2 sm:mb-4">
+              <div className="text-xl sm:text-2xl font-bold text-primary">
                 {metrics.estimatedResponseRate.toFixed(1)}%
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs sm:text-sm text-muted-foreground">
                 Estimated Response Rate
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-semibold mb-2 text-sm">Key Strengths</h4>
-              <ul className="list-disc list-inside text-sm space-y-1">
+              <h4 className="font-semibold mb-2 text-xs sm:text-sm">Key Strengths</h4>
+              <ul className="list-disc list-inside text-xs sm:text-sm space-y-1">
                 {metrics.keyStrengths.map((strength, i) => (
                   <li key={i} className="text-green-600">{strength}</li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-2 text-sm">Quick Improvements</h4>
-              <ul className="list-disc list-inside text-sm space-y-1">
+              <h4 className="font-semibold mb-2 text-xs sm:text-sm">Quick Improvements</h4>
+              <ul className="list-disc list-inside text-xs sm:text-sm space-y-1">
                 {metrics.improvementSuggestions.map((suggestion, i) => (
                   <li key={i} className="text-blue-600">{suggestion}</li>
                 ))}

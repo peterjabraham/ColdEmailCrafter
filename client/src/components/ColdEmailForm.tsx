@@ -181,7 +181,7 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
   }, []);
 
   return (
-    <div className="space-y-6 mt-6">
+    <div className="space-y-4 mt-4 sm:space-y-6 sm:mt-6">
       {error && (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
@@ -201,13 +201,14 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
+              className="w-full"
             >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Suggested Improvements</CardTitle>
+              <Card className="overflow-hidden">
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl">Suggested Improvements</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <pre className="whitespace-pre-wrap text-sm font-sans">
+                <CardContent className="p-4 sm:p-6">
+                  <pre className="whitespace-pre-wrap text-sm font-sans overflow-x-auto">
                     {emails.improvements}
                   </pre>
                 </CardContent>
@@ -220,14 +221,15 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
+              className="w-full"
             >
               <div className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Email Version 1</CardTitle>
+                <Card className="overflow-hidden">
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="text-lg sm:text-xl">Email Version 1</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="whitespace-pre-wrap font-mono text-sm">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="whitespace-pre-wrap font-mono text-sm bg-gray-50 rounded-lg p-4 overflow-x-auto">
                       {emails.variant1}
                     </div>
                   </CardContent>
@@ -242,30 +244,33 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
+              className="w-full"
             >
               <div className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Email Version 2</CardTitle>
+                <Card className="overflow-hidden">
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="text-lg sm:text-xl">Email Version 2</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="whitespace-pre-wrap font-mono text-sm">
+                  <CardContent className="space-y-4 p-4 sm:p-6">
+                    <div className="whitespace-pre-wrap font-mono text-sm bg-gray-50 rounded-lg p-4 overflow-x-auto">
                       {emails.variant2}
                     </div>
                     <Button
                       onClick={handleRegenerateV2}
                       disabled={regeneratingV2 || !emails.improvements}
-                      className="w-full bg-green-500 hover:bg-green-600 active:bg-gray-500 disabled:bg-gray-200"
+                      className="w-full bg-green-500 hover:bg-green-600 active:bg-gray-500 disabled:bg-gray-200 h-12 sm:h-10"
                     >
                       {regeneratingV2 ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Regenerating...
+                          <span className="hidden sm:inline">Regenerating...</span>
+                          <span className="sm:hidden">Loading...</span>
                         </>
                       ) : (
                         <>
                           <RefreshCw className="mr-2 h-4 w-4" />
-                          Regenerate Using Improvements
+                          <span className="hidden sm:inline">Regenerate Using Improvements</span>
+                          <span className="sm:hidden">Regenerate</span>
                         </>
                       )}
                     </Button>
@@ -316,13 +321,13 @@ const ColdEmailForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4 space-y-6">
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="w-full max-w-2xl mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Prospect Information</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Prospect Information</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-4 sm:p-6">
             <div className="space-y-2">
               <Label htmlFor="prospectName">Prospect's Name</Label>
               <Input
@@ -429,7 +434,12 @@ const ColdEmailForm: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Button type="submit" className="w-full bg-green-500 hover:bg-green-600 active:bg-gray-500">Generate Emails</Button>
+        <Button 
+          type="submit" 
+          className="w-full bg-green-500 hover:bg-green-600 active:bg-gray-500 h-12 sm:h-10"
+        >
+          Generate Emails
+        </Button>
       </form>
 
       {showEmails && <EmailDisplay formData={formData} />}
