@@ -98,21 +98,17 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const COLD_EMAIL_PRINCIPLES = `
-    1. Keep it 5-8 sentences (optimized for mobile viewing)
-    2. Break up lines after every 2 sentences maximum
-    3. Focus on customer pain points, not product features
-    4. Emphasize prospect's company and their specific problems
-    5. Use appropriate call-to-action based on strategy
-  `;
-
   const generateEmails = async () => {
     setLoading(true);
     setError(null);
 
     const prompt = `
       Write two different versions of a cold sales email using these principles:
-      ${COLD_EMAIL_PRINCIPLES}
+      1. Keep it 5-8 sentences (optimized for mobile viewing)
+      2. Break up lines after every 2 sentences maximum
+      3. Focus on customer pain points, not product features
+      4. Emphasize prospect's company and their specific problems
+      5. Use appropriate call-to-action based on strategy
 
       Use this information:
       - Prospect Name: ${formData.prospect.name}
@@ -143,11 +139,10 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
         throw new Error('Invalid response format from server');
       }
 
-      // Parse the content string into JSON
       const contentObj = JSON.parse(data.choices[0].message.content);
 
       setEmails({
-        improvements: contentObj.improvements || undefined,
+        improvements: contentObj.improvements,
         variant1: contentObj.variant1 || 'Failed to generate first email variant',
         variant2: contentObj.variant2 || 'Failed to generate second email variant',
       });
@@ -190,9 +185,9 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
                   <CardTitle>Suggested Improvements</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="whitespace-pre-wrap text-sm space-y-2">
+                  <pre className="whitespace-pre-wrap text-sm font-sans">
                     {emails.improvements}
-                  </div>
+                  </pre>
                 </CardContent>
               </Card>
             </motion.div>
