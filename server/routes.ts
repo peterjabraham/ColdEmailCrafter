@@ -18,19 +18,28 @@ export function registerRoutes(app: Express): Server {
         messages: [
           {
             role: "system",
-            content: "You are an expert cold email writer who creates highly effective, personalized sales emails."
+            content: "You are an expert cold email writer who creates highly effective, personalized sales emails. Format your response as a JSON object with the following structure: { 'improvements'?: string, 'variant1': string, 'variant2': string }"
           },
           {
             role: "user",
-            content: prompt
+            content: `${prompt}\n\nRespond with a JSON object containing two email variants and any suggested improvements. Format as: { "improvements": "any improvement suggestions (optional)", "variant1": "first email version", "variant2": "second email version" }`
           }
         ],
         temperature: 0.7,
-        max_tokens: 1000,
-        response_format: { type: "json_object" }
+        max_tokens: 1000
       });
 
-      res.json(completion);
+      // Parse the content as JSON before sending
+      const content = completion.choices[0].message.content;
+      const parsedContent = JSON.parse(content);
+
+      res.json({
+        choices: [{
+          message: {
+            content: JSON.stringify(parsedContent)
+          }
+        }]
+      });
     } catch (error: any) {
       console.error('OpenAI API error:', error);
       res.status(500).json({
