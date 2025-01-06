@@ -247,10 +247,10 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
                   <div className="whitespace-pre-wrap font-mono text-sm">
                     {emails.variant2}
                   </div>
-                  <Button 
+                  <Button
                     onClick={handleRegenerateV2}
                     disabled={regeneratingV2 || !emails.improvements}
-                    className="w-full"
+                    className="w-full bg-green-500 hover:bg-green-600 active:bg-gray-500 disabled:bg-gray-200"
                   >
                     {regeneratingV2 ? (
                       <>
@@ -422,7 +422,7 @@ const ColdEmailForm: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Button type="submit" className="w-full">Generate Emails</Button>
+        <Button type="submit" className="w-full bg-green-500 hover:bg-green-600 active:bg-gray-500">Generate Emails</Button>
       </form>
 
       {showEmails && <EmailDisplay formData={formData} />}
