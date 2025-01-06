@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Sparkles, Mail, Send } from 'lucide-react';
+import { Loader2, Sparkles, Mail, Send, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Prospect {
@@ -96,14 +96,20 @@ const GenerationProgress: React.FC = () => {
 const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
   const [emails, setEmails] = useState<EmailResponse>({ variant1: '', variant2: '' });
   const [loading, setLoading] = useState(false);
+  const [regeneratingV2, setRegeneratingV2] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const generateEmails = async () => {
+  const generateEmails = async (useImprovements: boolean = false) => {
+    if (useImprovements && !emails.improvements) {
+      setError('No improvements available for regeneration');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     const prompt = `
-      Write two different versions of a cold sales email using these principles:
+      Write ${useImprovements ? 'a new version of the second cold sales email' : 'two different versions of a cold sales email'} using these principles:
       1. Keep it 5-8 sentences (optimized for mobile viewing)
       2. Break up lines after every 2 sentences maximum
       3. Focus on customer pain points, not product features
@@ -118,6 +124,7 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
       - Main Pain Point: ${formData.product.painPoint}
       - Solution: ${formData.product.solution}
       - CTA Style: ${formData.strategy.ctaType === 'direct' ? 'Direct (ask for a call)' : 'Soft (offer to share more information)'}
+      ${useImprovements ? `\nIncorporate these improvements:\n${emails.improvements}` : ''}
     `;
 
     try {
@@ -141,17 +148,31 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
 
       const contentObj = JSON.parse(data.choices[0].message.content);
 
-      setEmails({
-        improvements: contentObj.improvements,
-        variant1: contentObj.variant1 || 'Failed to generate first email variant',
-        variant2: contentObj.variant2 || 'Failed to generate second email variant',
-      });
+      if (useImprovements) {
+        // Only update variant2 when regenerating
+        setEmails(prev => ({
+          ...prev,
+          variant2: contentObj.variant2 || 'Failed to regenerate second email variant',
+        }));
+      } else {
+        setEmails({
+          improvements: contentObj.improvements,
+          variant1: contentObj.variant1 || 'Failed to generate first email variant',
+          variant2: contentObj.variant2 || 'Failed to generate second email variant',
+        });
+      }
     } catch (err) {
       console.error('Error:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate emails. Please try again.');
     } finally {
       setLoading(false);
+      setRegeneratingV2(false);
     }
+  };
+
+  const handleRegenerateV2 = async () => {
+    setRegeneratingV2(true);
+    await generateEmails(true);
   };
 
   useEffect(() => {
@@ -222,10 +243,27 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
                 <CardHeader>
                   <CardTitle>Email Version 2</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
                   <div className="whitespace-pre-wrap font-mono text-sm">
                     {emails.variant2}
                   </div>
+                  <Button 
+                    onClick={handleRegenerateV2}
+                    disabled={regeneratingV2 || !emails.improvements}
+                    className="w-full"
+                  >
+                    {regeneratingV2 ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Regenerating...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Regenerate Using Improvements
+                      </>
+                    )}
+                  </Button>
                 </CardContent>
               </Card>
             </motion.div>
