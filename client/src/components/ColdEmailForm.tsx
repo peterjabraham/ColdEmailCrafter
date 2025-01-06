@@ -122,16 +122,6 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
       - Main Pain Point: ${formData.product.painPoint}
       - Solution: ${formData.product.solution}
       - CTA Style: ${formData.strategy.ctaType === 'direct' ? 'Direct (ask for a call)' : 'Soft (offer to share more information)'}
-
-      Before writing the emails, analyze if there are any additional relevant pain points or solutions that might resonate better with this prospect based on their role and industry. If you find better alternatives, include a brief section titled "SUGGESTED IMPROVEMENTS:" before the emails, listing:
-      1. Any additional or more impactful pain points that might resonate better
-      2. More effective ways to position the solution
-      3. Brief explanation of why these might work better
-
-      Then provide two email versions labeled "Version 1:" and "Version 2:". 
-      Keep each email concise and mobile-friendly.
-      Make the versions distinctly different in approach while maintaining effectiveness.
-      Consider incorporating any of your suggested improvements in one of the versions if they're significantly stronger than the provided pain points/solutions.
     `;
 
     try {
@@ -144,29 +134,26 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate emails');
+        throw new Error(await response.text());
       }
 
       const data = await response.json();
-      const content = data.choices[0].message.content;
 
-      let variant1, variant2, improvements = '';
-      if (content.includes('SUGGESTED IMPROVEMENTS:')) {
-        const [improvementSection, ...emailVersions] = content.split('Version 1:');
-        improvements = improvementSection.replace('SUGGESTED IMPROVEMENTS:', '').trim();
-        [variant1, variant2] = emailVersions.join('Version 1:').split('Version 2:');
-      } else {
-        [variant1, variant2] = content.split('Version 2:');
+      if (!data.choices?.[0]?.message?.content) {
+        throw new Error('Invalid response format from server');
       }
 
+      // Parse the content string into JSON
+      const contentObj = JSON.parse(data.choices[0].message.content);
+
       setEmails({
-        improvements: improvements || undefined,
-        variant1: variant1.replace('Version 1:', '').trim(),
-        variant2: variant2.trim(),
+        improvements: contentObj.improvements || undefined,
+        variant1: contentObj.variant1 || 'Failed to generate first email variant',
+        variant2: contentObj.variant2 || 'Failed to generate second email variant',
       });
     } catch (err) {
-      setError('Failed to generate emails. Please try again.');
       console.error('Error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to generate emails. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -193,23 +180,29 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
       ) : (
         <>
           {emails.improvements && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Suggested Improvements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="whitespace-pre-wrap text-sm space-y-2">
-                  {emails.improvements}
-                </div>
-              </CardContent>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Suggested Improvements</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="whitespace-pre-wrap text-sm space-y-2">
+                    {emails.improvements}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           )}
 
           {emails.variant1 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.4 }}
             >
               <Card>
                 <CardHeader>
@@ -228,7 +221,7 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.6 }}
             >
               <Card>
                 <CardHeader>
