@@ -91,16 +91,25 @@ export function registerRoutes(app: Express): Server {
         messages: [
           {
             role: "system",
-            content: `You are an expert email analyst. Analyze the cold email and provide performance metrics. Focus on these key aspects:
-            1. Readability (1-10): How easy is it to read and understand?
-            2. Personalization Score (1-10): How well is it tailored to the recipient?
-            3. Value Proposition Clarity (1-10): How clearly is the value communicated?
-            4. Call-to-Action Effectiveness (1-10): How compelling is the CTA?
-            5. Estimated Response Rate (percentage): Predicted response rate based on email quality
-            6. Key Strengths: List top 3 strengths
-            7. Improvement Suggestions: List top 3 quick improvements
+            content: `You are an expert email analyst. Analyze the cold email and provide performance metrics. Return a JSON object with these exact keys:
+            {
+              "readability": number (1-10),
+              "personalizationScore": number (1-10),
+              "valuePropositionClarity": number (1-10),
+              "ctaEffectiveness": number (1-10),
+              "estimatedResponseRate": number (percentage),
+              "keyStrengths": string[] (array of 3 strengths),
+              "improvementSuggestions": string[] (array of 3 suggestions)
+            }
 
-            Provide response in JSON format.`
+            Focus on these aspects:
+            1. Readability: How easy is it to read and understand?
+            2. Personalization Score: How well is it tailored to the recipient?
+            3. Value Proposition Clarity: How clearly is the value communicated?
+            4. Call-to-Action Effectiveness: How compelling is the CTA?
+            5. Estimated Response Rate: Predicted response rate based on email quality (as a number)
+            6. Key Strengths: List exactly 3 key strengths as simple strings
+            7. Improvement Suggestions: List exactly 3 quick improvements as simple strings`
           },
           {
             role: "user",

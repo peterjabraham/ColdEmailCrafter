@@ -20,6 +20,12 @@ interface EmailMetricsProps {
   onMetricsCalculated?: (metrics: Metrics) => void;
 }
 
+interface MetricRowProps {
+  label: string;
+  value: number;
+  icon: React.ElementType;
+}
+
 const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalculated }) => {
   const [metrics, setMetrics] = React.useState<Metrics | null>(null);
   const [loading, setLoading] = React.useState(false);
@@ -44,8 +50,18 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
         }
 
         const data = await response.json();
-        setMetrics(data.metrics);
-        onMetricsCalculated?.(data.metrics);
+        const receivedMetrics = data.metrics || {
+          readability: 0,
+          personalizationScore: 0,
+          valuePropositionClarity: 0,
+          ctaEffectiveness: 0,
+          estimatedResponseRate: 0,
+          keyStrengths: [],
+          improvementSuggestions: []
+        };
+
+        setMetrics(receivedMetrics);
+        onMetricsCalculated?.(receivedMetrics);
       } catch (err) {
         console.error('Error:', err);
         setError('Failed to analyze email. Please try again.');
@@ -82,7 +98,7 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
     return null;
   }
 
-  const MetricRow = ({ label, value, icon: Icon }) => (
+  const MetricRow: React.FC<MetricRowProps> = ({ label, value, icon: Icon }) => (
     <div className="flex items-center space-x-4 mb-4">
       <Icon className="h-5 w-5 text-primary" />
       <div className="flex-1">
@@ -144,7 +160,7 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
             <div>
               <h4 className="font-semibold mb-2 text-sm">Key Strengths</h4>
               <ul className="list-disc list-inside text-sm space-y-1">
-                {metrics.keyStrengths.map((strength, i) => (
+                {(metrics.keyStrengths || []).map((strength, i) => (
                   <li key={i} className="text-green-600">{strength}</li>
                 ))}
               </ul>
@@ -152,7 +168,7 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
             <div>
               <h4 className="font-semibold mb-2 text-sm">Quick Improvements</h4>
               <ul className="list-disc list-inside text-sm space-y-1">
-                {metrics.improvementSuggestions.map((suggestion, i) => (
+                {(metrics.improvementSuggestions || []).map((suggestion, i) => (
                   <li key={i} className="text-blue-600">{suggestion}</li>
                 ))}
               </ul>
