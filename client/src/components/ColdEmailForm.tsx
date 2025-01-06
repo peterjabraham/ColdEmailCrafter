@@ -6,7 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles, Mail, Send } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Prospect {
   name: string;
@@ -36,7 +37,62 @@ interface EmailResponse {
   variant2: string;
 }
 
-// Email Generator Component
+const GenerationProgress: React.FC = () => {
+  const [stage, setStage] = useState(0);
+  const stages = [
+    { icon: Sparkles, text: "Analyzing input..." },
+    { icon: Mail, text: "Crafting emails..." },
+    { icon: Send, text: "Finalizing content..." }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStage((prev) => (prev + 1) % stages.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center justify-center p-8 space-y-4">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={stage}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center space-y-3"
+        >
+          {React.createElement(stages[stage].icon, {
+            className: "h-8 w-8 animate-bounce text-primary"
+          })}
+          <p className="text-sm font-medium text-muted-foreground">
+            {stages[stage].text}
+          </p>
+        </motion.div>
+      </AnimatePresence>
+      <motion.div
+        className="w-48 h-2 bg-muted rounded-full overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        <motion.div
+          className="h-full bg-primary"
+          initial={{ width: "0%" }}
+          animate={{ width: "100%" }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+      </motion.div>
+    </div>
+  );
+};
+
 const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
   const [emails, setEmails] = useState<EmailResponse>({ variant1: '', variant2: '' });
   const [loading, setLoading] = useState(false);
@@ -94,7 +150,6 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
       const data = await response.json();
       const content = data.choices[0].message.content;
 
-      // Check if there are suggested improvements
       let variant1, variant2, improvements = '';
       if (content.includes('SUGGESTED IMPROVEMENTS:')) {
         const [improvementSection, ...emailVersions] = content.split('Version 1:');
@@ -117,7 +172,6 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
     }
   };
 
-  // Trigger email generation when component mounts
   useEffect(() => {
     generateEmails();
   }, []);
@@ -131,10 +185,11 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
       )}
 
       {loading ? (
-        <div className="flex justify-center items-center p-8">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <span className="ml-2">Generating emails...</span>
-        </div>
+        <Card>
+          <CardContent>
+            <GenerationProgress />
+          </CardContent>
+        </Card>
       ) : (
         <>
           {emails.improvements && (
@@ -151,29 +206,41 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
           )}
 
           {emails.variant1 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Email Version 1</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="whitespace-pre-wrap font-mono text-sm">
-                  {emails.variant1}
-                </div>
-              </CardContent>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Email Version 1</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="whitespace-pre-wrap font-mono text-sm">
+                    {emails.variant1}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           )}
 
           {emails.variant2 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Email Version 2</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="whitespace-pre-wrap font-mono text-sm">
-                  {emails.variant2}
-                </div>
-              </CardContent>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Email Version 2</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="whitespace-pre-wrap font-mono text-sm">
+                    {emails.variant2}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           )}
         </>
       )}
@@ -181,7 +248,6 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
   );
 };
 
-// Main Form Component
 const ColdEmailForm: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     prospect: {
