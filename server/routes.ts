@@ -9,7 +9,6 @@ const openai = new OpenAI({
 
 function stripMarkdown(content: string | null): string {
   if (!content) return "";
-  // Remove markdown code block markers and any language specifiers
   return content.replace(/```(?:json)?\n?/g, '').trim();
 }
 
@@ -48,17 +47,11 @@ export function registerRoutes(app: Express): Server {
         response_format: { type: "json_object" }
       });
 
-      // Get the content and ensure it's proper JSON
       const content = completion.choices[0].message.content || '';
-
-      // Strip any markdown formatting if present
       const cleanContent = stripMarkdown(content);
 
       try {
-        // Parse the content to verify it's valid JSON
         const parsedContent = JSON.parse(cleanContent);
-
-        // Send back in the expected format
         res.json({
           choices: [{
             message: {
@@ -77,6 +70,67 @@ export function registerRoutes(app: Express): Server {
       console.error('OpenAI API error:', error);
       res.status(500).json({
         error: 'Failed to generate email',
+        details: error.message
+      });
+    }
+  });
+
+  // Email performance prediction endpoint
+  app.post('/api/analyze-email', async (req, res) => {
+    try {
+      const { emailContent } = req.body;
+
+      if (!emailContent) {
+        return res.status(400).json({
+          error: 'Missing email content in request body'
+        });
+      }
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert email analyst. Analyze the cold email and provide performance metrics. Focus on these key aspects:
+            1. Readability (1-10): How easy is it to read and understand?
+            2. Personalization Score (1-10): How well is it tailored to the recipient?
+            3. Value Proposition Clarity (1-10): How clearly is the value communicated?
+            4. Call-to-Action Effectiveness (1-10): How compelling is the CTA?
+            5. Estimated Response Rate (percentage): Predicted response rate based on email quality
+            6. Key Strengths: List top 3 strengths
+            7. Improvement Suggestions: List top 3 quick improvements
+
+            Provide response in JSON format.`
+          },
+          {
+            role: "user",
+            content: `Analyze this cold email:\n${emailContent}`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+        response_format: { type: "json_object" }
+      });
+
+      const content = completion.choices[0].message.content || '';
+      const cleanContent = stripMarkdown(content);
+
+      try {
+        const parsedContent = JSON.parse(cleanContent);
+        res.json({
+          metrics: parsedContent
+        });
+      } catch (parseError) {
+        console.error('JSON parsing error:', parseError, 'Content:', cleanContent);
+        res.status(500).json({
+          error: 'Failed to parse analysis response',
+          details: 'Invalid JSON format in response'
+        });
+      }
+    } catch (error: any) {
+      console.error('OpenAI API error:', error);
+      res.status(500).json({
+        error: 'Failed to analyze email',
         details: error.message
       });
     }

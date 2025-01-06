@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Sparkles, Mail, Send, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import EmailMetrics from './EmailMetrics';
 
 interface Prospect {
   name: string;
@@ -220,16 +221,19 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Email Version 1</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="whitespace-pre-wrap font-mono text-sm">
-                    {emails.variant1}
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Email Version 1</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="whitespace-pre-wrap font-mono text-sm">
+                      {emails.variant1}
+                    </div>
+                  </CardContent>
+                </Card>
+                <EmailMetrics emailContent={emails.variant1} />
+              </div>
             </motion.div>
           )}
 
@@ -239,33 +243,36 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Email Version 2</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="whitespace-pre-wrap font-mono text-sm">
-                    {emails.variant2}
-                  </div>
-                  <Button
-                    onClick={handleRegenerateV2}
-                    disabled={regeneratingV2 || !emails.improvements}
-                    className="w-full bg-green-500 hover:bg-green-600 active:bg-gray-500 disabled:bg-gray-200"
-                  >
-                    {regeneratingV2 ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Regenerating...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Regenerate Using Improvements
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Email Version 2</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="whitespace-pre-wrap font-mono text-sm">
+                      {emails.variant2}
+                    </div>
+                    <Button
+                      onClick={handleRegenerateV2}
+                      disabled={regeneratingV2 || !emails.improvements}
+                      className="w-full bg-green-500 hover:bg-green-600 active:bg-gray-500 disabled:bg-gray-200"
+                    >
+                      {regeneratingV2 ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Regenerating...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Regenerate Using Improvements
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+                <EmailMetrics emailContent={emails.variant2} />
+              </div>
             </motion.div>
           )}
         </>
