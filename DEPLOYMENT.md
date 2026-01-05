@@ -83,6 +83,7 @@ Should return:
    - **Root directory** (Path): `/client`
    - **Build command**: `npm run build:client`
    - **Build output directory**: `dist` (relative to `/client`, so it will be `client/dist`)
+   - **Deploy command**: `./deploy.sh` or `echo "Deploy handled by Cloudflare Pages"` (since root is `/client`, use `./deploy.sh` not `client/deploy.sh`)
    - **Deploy command**: Leave empty or remove `npx wrangler deploy` (Pages doesn't need a deploy command)
    - **Node version**: `20` (or latest LTS)
 
