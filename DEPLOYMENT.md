@@ -80,9 +80,10 @@ Should return:
 4. Configure build settings:
    - **Project name**: `cold-email-crafter` (or your choice)
    - **Production branch**: `main` (or your default branch)
-   - **Root directory**: `/client`
+   - **Root directory** (Path): `/client`
    - **Build command**: `npm run build:client`
-   - **Build output directory**: `dist/public`
+   - **Build output directory**: `dist` (relative to `/client`, so it will be `client/dist`)
+   - **Deploy command**: Leave empty or remove `npx wrangler deploy` (Pages doesn't need a deploy command)
    - **Node version**: `20` (or latest LTS)
 
 5. Add environment variables:
@@ -172,9 +173,9 @@ https://cold-email-crafter.pages.dev,https://yourdomain.com
 ### Build Failures
 
 **Cloudflare Pages:**
-- Ensure `Root directory` is set to `/client`
+- Ensure `Path` (Root directory) is set to `/client`
 - Verify `Build command` is `npm run build:client`
-- Check `Build output directory` is `dist/public`
+- Build output will be in `dist` (relative to `/client`, so `client/dist`)
 
 **Railway:**
 - Check Dockerfile is in project root
