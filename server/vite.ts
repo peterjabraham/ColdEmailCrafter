@@ -7,6 +7,8 @@ import { type Server } from "http";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// log function is used in production, so it's safe to export
+
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -20,8 +22,12 @@ export function log(message: string, source = "express") {
 
 export async function setupVite(app: Express, server: Server) {
   // Dynamically import vite only in development to avoid bundling it in production
+  // This function is only called in development, so vite will be available
   const { createServer: createViteServer, createLogger } = await import("vite");
-  const viteConfig = await import("../vite.config.js");
+  const viteConfig = await import("../vite.config.js").catch(() => {
+    // Fallback if config can't be loaded
+    return { default: {} };
+  });
   const viteLogger = createLogger();
 
   const vite = await createViteServer({

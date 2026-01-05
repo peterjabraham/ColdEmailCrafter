@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { log } from "./vite";
 
 const app = express();
 
@@ -101,6 +101,8 @@ app.get('/health', (_req, res) => {
   // Setup Vite in development only
   // In production, frontend is served by Cloudflare Pages (backend-only mode)
   if (app.get("env") === "development") {
+    // Dynamically import vite setup only in development to avoid bundling vite in production
+    const { setupVite } = await import("./vite.js");
     await setupVite(app, server);
   }
   // Note: In production, we don't serve static files - Cloudflare Pages handles the frontend
