@@ -15,8 +15,8 @@ export default defineConfig({
   },
   root: path.resolve(__dirname, "client"),
   build: {
-    // Output to dist relative to client directory (Cloudflare Pages root is /client)
-    outDir: "dist",
+    // Output to client/dist for Cloudflare Pages (root directory is /client)
+    outDir: path.resolve(__dirname, "client", "dist"),
     emptyOutDir: true,
     sourcemap: false,
     minify: 'esbuild',
