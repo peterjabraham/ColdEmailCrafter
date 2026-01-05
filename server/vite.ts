@@ -24,14 +24,12 @@ export async function setupVite(app: Express, server: Server) {
   // Dynamically import vite only in development to avoid bundling it in production
   // This function is only called in development, so vite will be available
   const { createServer: createViteServer, createLogger } = await import("vite");
-  const viteConfig = await import("../vite.config.js").catch(() => {
-    // Fallback if config can't be loaded
-    return { default: {} };
-  });
   const viteLogger = createLogger();
 
+  // Create minimal vite config inline instead of importing vite.config.ts
+  // This prevents vite.config.ts (which imports vite plugins) from being bundled
   const vite = await createViteServer({
-    ...viteConfig.default,
+    root: path.resolve(__dirname, "..", "client"),
     configFile: false,
     customLogger: {
       ...viteLogger,
