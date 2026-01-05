@@ -80,11 +80,10 @@ Should return:
 4. Configure build settings:
    - **Project name**: `cold-email-crafter` (or your choice)
    - **Production branch**: `main` (or your default branch)
-   - **Root directory** (Path): `/client`
+   - **Root directory** (Path): `/` (repo root, not `/client`)
    - **Build command**: `npm run build:client`
-   - **Build output directory**: `dist` (relative to `/client`, so it will be `client/dist`)
-   - **Deploy command**: `./deploy.sh` or `echo "Deploy handled by Cloudflare Pages"` (since root is `/client`, use `./deploy.sh` not `client/deploy.sh`)
-   - **Deploy command**: Leave empty or remove `npx wrangler deploy` (Pages doesn't need a deploy command)
+   - **Build output directory**: `client/dist` (relative to repo root)
+   - **Deploy command**: `echo "Deploy handled by Cloudflare Pages"` (or leave empty if possible)
    - **Node version**: `20` (or latest LTS)
 
 5. Add environment variables:
