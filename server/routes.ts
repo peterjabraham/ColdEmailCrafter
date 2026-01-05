@@ -12,15 +12,31 @@ function stripMarkdown(content: string | null): string {
   return content.replace(/```(?:json)?\n?/g, '').trim();
 }
 
+// Validate OpenAI API key is present
+function validateApiKey(): void {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY environment variable is required');
+  }
+}
+
 export function registerRoutes(app: Express): Server {
+  // Validate API key on startup
+  validateApiKey();
+
   // Email generation endpoint
   app.post('/api/generate-email', async (req, res) => {
     try {
       const { prompt } = req.body;
 
-      if (!prompt) {
+      if (!prompt || typeof prompt !== 'string') {
         return res.status(400).json({
-          error: 'Missing prompt in request body'
+          error: 'Missing or invalid prompt in request body'
+        });
+      }
+
+      if (prompt.length > 5000) {
+        return res.status(400).json({
+          error: 'Prompt too long (max 5000 characters)'
         });
       }
 
@@ -68,9 +84,23 @@ export function registerRoutes(app: Express): Server {
       }
     } catch (error: any) {
       console.error('OpenAI API error:', error);
+      
+      // Handle specific OpenAI errors
+      if (error.status === 429) {
+        return res.status(429).json({
+          error: 'Rate limit exceeded. Please try again in a moment.'
+        });
+      }
+      
+      if (error.status === 401) {
+        return res.status(500).json({
+          error: 'API configuration error'
+        });
+      }
+
       res.status(500).json({
         error: 'Failed to generate email',
-        details: error.message
+        details: process.env.NODE_ENV === 'production' ? undefined : error.message
       });
     }
   });
@@ -80,9 +110,15 @@ export function registerRoutes(app: Express): Server {
     try {
       const { emailContent } = req.body;
 
-      if (!emailContent) {
+      if (!emailContent || typeof emailContent !== 'string') {
         return res.status(400).json({
-          error: 'Missing email content in request body'
+          error: 'Missing or invalid email content in request body'
+        });
+      }
+
+      if (emailContent.length > 10000) {
+        return res.status(400).json({
+          error: 'Email content too long (max 10000 characters)'
         });
       }
 
@@ -149,9 +185,16 @@ export function registerRoutes(app: Express): Server {
       }
     } catch (error: any) {
       console.error('OpenAI API error:', error);
+      
+      if (error.status === 429) {
+        return res.status(429).json({
+          error: 'Rate limit exceeded. Please try again in a moment.'
+        });
+      }
+
       res.status(500).json({
         error: 'Failed to analyze email',
-        details: error.message
+        details: process.env.NODE_ENV === 'production' ? undefined : error.message
       });
     }
   });

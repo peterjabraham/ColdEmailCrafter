@@ -4,6 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Target, Zap, Brain, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { apiUrl } from '@/lib/api';
 
 interface Metrics {
   readability: number;
@@ -37,7 +38,7 @@ const EmailMetrics: React.FC<EmailMetricsProps> = ({ emailContent, onMetricsCalc
       setError(null);
 
       try {
-        const response = await fetch('/api/analyze-email', {
+        const response = await fetch(apiUrl('/api/analyze-email'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

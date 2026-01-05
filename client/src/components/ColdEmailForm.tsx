@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Sparkles, Mail, Send, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import EmailMetrics from './EmailMetrics';
+import { apiUrl } from '@/lib/api';
 
 interface Prospect {
   name: string;
@@ -129,7 +130,7 @@ const EmailDisplay: React.FC<{ formData: FormData }> = ({ formData }) => {
     `;
 
     try {
-      const response = await fetch('/api/generate-email', {
+      const response = await fetch(apiUrl('/api/generate-email'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

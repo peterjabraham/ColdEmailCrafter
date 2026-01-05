@@ -1,0 +1,75 @@
+# ColdEmailCrafter - Project Context
+
+## Overview
+
+Cold email generator using OpenAI GPT-4o. Migrated from Replit to Railway.
+
+## Architecture
+
+- **Frontend**: React + Vite + TypeScript + Tailwind + shadcn/ui
+- **Backend**: Node.js + Express + TypeScript
+- **AI**: OpenAI GPT-4o
+- **Hosting**: Railway (full-stack monorepo)
+
+## API Endpoints
+
+- `POST /api/generate-email` - Generate cold emails from prompt
+- `POST /api/analyze-email` - Analyze email for performance metrics
+- `GET /health` - Health check for Railway
+
+## Key Files
+
+```
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── ColdEmailForm.tsx    # Main form
+│   │   │   └── EmailMetrics.tsx     # Analysis display
+│   │   ├── pages/Home.tsx
+│   │   └── main.tsx
+│   └── index.html
+├── server/
+│   ├── index.ts            # Express server entry
+│   ├── routes.ts           # API routes (OpenAI calls)
+│   └── vite.ts             # Vite dev server integration
+├── Dockerfile              # Railway deployment
+├── vite.config.ts
+└── package.json
+```
+
+## Environment Variables
+
+- `OPENAI_API_KEY` - Required for email generation
+- `CORS_ORIGINS` - Comma-separated allowed origins
+- `PORT` - Server port (Railway injects this)
+- `NODE_ENV` - production or development
+
+## Code Style
+
+- TypeScript throughout
+- ES modules (type: "module")
+- Functional React components
+- TanStack Query for API calls
+- Tailwind CSS + shadcn/ui components
+- Zod for validation
+
+## Security
+
+- Helmet for HTTP headers
+- CORS whitelist (no wildcards)
+- Rate limiting: 50 requests per 15 minutes
+- Request body size limit: 10kb
+- Input validation on all endpoints
+
+## Do Not
+
+- Commit .env files
+- Use CORS wildcard (*) in production
+- Expose error details in production
+- Skip input validation
+
+## Deployment
+
+- Railway handles both frontend and backend
+- Dockerfile builds and serves the full app
+- Health check at /health for monitoring

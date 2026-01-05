@@ -9,7 +9,7 @@ const app = express();
 
 // Security middleware
 app.use(helmet({
-  contentSecurityPolicy: false, // Disable for development, configure properly for production
+  contentSecurityPolicy: false, // Configure properly for production if needed
 }));
 
 // CORS configuration
@@ -33,7 +33,7 @@ app.use(cors({
 // Rate limiting for API endpoints
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // 50 requests per window (generous for email generation)
+  max: 50, // 50 requests per window
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -78,8 +78,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Health check endpoint (Railway uses this)
 app.get('/health', (_req, res) => {
-  res.json({
-    status: 'healthy',
+  res.json({ 
+    status: 'healthy', 
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
@@ -92,22 +92,22 @@ app.get('/health', (_req, res) => {
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error('Error:', err);
     const status = err.status || err.statusCode || 500;
-    const message = process.env.NODE_ENV === 'production'
-      ? 'Internal Server Error'
+    const message = process.env.NODE_ENV === 'production' 
+      ? 'Internal Server Error' 
       : err.message || 'Internal Server Error';
     res.status(status).json({ error: message });
   });
 
-  // Setup Vite in development only
-  // In production, frontend is served by Cloudflare Pages (backend-only mode)
+  // Setup Vite in development, static serving in production
   if (app.get("env") === "development") {
     await setupVite(app, server);
+  } else {
+    serveStatic(app);
   }
-  // Note: In production, we don't serve static files - Cloudflare Pages handles the frontend
 
   // Use PORT from environment (Railway provides this)
   const PORT = parseInt(process.env.PORT || '5000', 10);
-
+  
   server.listen(PORT, "0.0.0.0", () => {
     log(`Server running on port ${PORT}`);
   });

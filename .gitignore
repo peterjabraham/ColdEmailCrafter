@@ -4,3 +4,18 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Replit
+.replit
+replit.nix
+.upm/
+.cache/
+.config/
+.local/
+.breakpoints
+attached_assets/
+
+# Environment
+.env
+.env.local
+.env.*.local
