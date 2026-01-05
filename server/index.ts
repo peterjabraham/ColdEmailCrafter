@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { registerRoutes } from "./routes";
-import { log } from "./vite";
+import { log } from "./utils.js";
 
 const app = express();
 
@@ -100,10 +100,15 @@ app.get('/health', (_req, res) => {
 
   // Setup Vite in development only
   // In production, frontend is served by Cloudflare Pages (backend-only mode)
-  if (app.get("env") === "development") {
-    // Dynamically import vite setup only in development to avoid bundling vite in production
-    const { setupVite } = await import("./vite.js");
-    await setupVite(app, server);
+  if (process.env.NODE_ENV !== "production" && app.get("env") === "development") {
+    try {
+      // Dynamically import vite setup only in development to avoid bundling vite in production
+      const viteModule = await import("./vite.js");
+      await viteModule.setupVite(app, server);
+    } catch (error) {
+      // If vite can't be loaded (e.g., in production), just log and continue
+      console.warn("Vite setup skipped:", error instanceof Error ? error.message : "Unknown error");
+    }
   }
   // Note: In production, we don't serve static files - Cloudflare Pages handles the frontend
 
