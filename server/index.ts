@@ -100,14 +100,19 @@ app.get('/health', (_req, res) => {
 
   // Setup Vite in development only
   // In production, frontend is served by Cloudflare Pages (backend-only mode)
+  // We use a string-based dynamic import to prevent esbuild from bundling vite.ts
   if (process.env.NODE_ENV !== "production" && app.get("env") === "development") {
     try {
-      // Dynamically import vite setup only in development to avoid bundling vite in production
-      const viteModule = await import("./vite.js");
+      // Use Function constructor to create a truly dynamic import that esbuild can't analyze
+      const importVite = new Function('return import("./vite.js")');
+      const viteModule = await importVite();
       await viteModule.setupVite(app, server);
     } catch (error) {
       // If vite can't be loaded (e.g., in production), just log and continue
-      console.warn("Vite setup skipped:", error instanceof Error ? error.message : "Unknown error");
+      // This is expected in production where vite is not installed
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("Vite setup skipped:", error instanceof Error ? error.message : "Unknown error");
+      }
     }
   }
   // Note: In production, we don't serve static files - Cloudflare Pages handles the frontend
