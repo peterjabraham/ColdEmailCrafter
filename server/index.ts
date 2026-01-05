@@ -85,6 +85,20 @@ app.get('/health', (_req, res) => {
   });
 });
 
+// Root endpoint - frontend is served by Cloudflare Pages
+app.get('/', (_req, res) => {
+  res.json({
+    message: 'ColdEmailCrafter API',
+    status: 'running',
+    frontend: 'Frontend is served by Cloudflare Pages',
+    endpoints: {
+      health: '/health',
+      generateEmail: 'POST /api/generate-email',
+      analyzeEmail: 'POST /api/analyze-email'
+    }
+  });
+});
+
 (async () => {
   const server = registerRoutes(app);
 
