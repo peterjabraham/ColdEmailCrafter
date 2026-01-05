@@ -11,8 +11,19 @@ const __dirname = dirname(__filename);
 export async function setupVite(app: Express, server: Server) {
   // Dynamically import vite only in development to avoid bundling it in production
   // This function is only called in development, so vite will be available
-  const { createServer: createViteServer, createLogger } = await import("vite");
-  const viteLogger = createLogger();
+  let createViteServer: any;
+  let createLogger: any;
+  let viteLogger: any;
+  
+  try {
+    const viteModule = await import("vite");
+    createViteServer = viteModule.createServer;
+    createLogger = viteModule.createLogger;
+    viteLogger = createLogger();
+  } catch (error) {
+    // If vite is not available (e.g., in production), throw a clear error
+    throw new Error("Vite is not available. This function should only be called in development mode.");
+  }
 
   // Create minimal vite config inline instead of importing vite.config.ts
   // This prevents vite.config.ts (which imports vite plugins) from being bundled
