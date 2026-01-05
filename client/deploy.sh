@@ -1,6 +1,6 @@
 #!/bin/bash
-# Cloudflare Pages doesn't need a deploy command - it automatically deploys the build output
-# This script exists only because the deploy command field is required
-echo "Build output ready for Cloudflare Pages deployment"
+# Cloudflare Pages automatically deploys the build output
+# This script is a no-op because Pages handles deployment automatically
+# The deploy command field is required by the UI, but we don't need to do anything
+echo "Build output ready - Cloudflare Pages will deploy automatically"
 exit 0
-
